@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="WmicNetworkAdapterDisable" Id="{fd3cd38c-f70d-435b-8122-30aba7cc167c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK WmicNetworkAdapterDisable
+VAR_INPUT
+	AdapterName : STRING(80);
+    Start : BOOL;
+END_VAR
+VAR_OUTPUT
+	Busy : BOOL;
+    Error : BOOL;
+    ErrorId : UDINT;
+END_VAR
+VAR CONSTANT
+	DISABLE_CMD : T_MAXSTRING := 'C:\Windows\System32\mshta vbscript:Execute("CreateObject(""WScript.Shell"").Run ""powershell -c Disable-NetAdapter -Name """""""" -Confirm:$$false"", 0: window.close")';
+	ADAPTER_INDEX_POS : INT := 125;
+END_VAR
+VAR
+	commandLine : T_MAXSTRING;
+	ntStartProcess : NT_StartProcess;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+commandLine := INSERT(DISABLE_CMD, AdapterName, ADAPTER_INDEX_POS); 
+ntStartProcess(
+	NETID := '', 
+	PATHSTR := commandLine, 
+	DIRNAME := 'C:\Windows\System32', 
+	COMNDLINE := '', 
+	START := Start, 
+	TMOUT := DEFAULT_ADS_TIMEOUT, 
+	BUSY => Busy, 
+	ERR => Error, 
+	ERRID => ErrorId);]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

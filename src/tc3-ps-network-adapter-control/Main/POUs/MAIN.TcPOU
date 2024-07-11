@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{94f8cd48-3d84-4e5f-8afc-c35ca69d53de}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	enable : BOOL; // set this value true to enable
+	disable : BOOL; // set this value true to disable
+	wmicNetworkAdapterEnable: WmicNetworkAdapterEnable;
+	wmicNetworkAdapterDisable: WmicNetworkAdapterDisable;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// once triggered this code will take aproximatly 10 seconds to enable or disable the adapter
+// this code will work on Windows 10.  It uses Powershell and mshta, so these must be available
+// on the system (which is typically already available on a Beckhoff IPC)
+
+// when adding to your project you will need to add the Tc2_Utilities to your References.
+
+wmicNetworkAdapterEnable(AdapterName := 'X001',Start := enable);
+wmicNetworkAdapterDisable(AdapterName := 'X001',Start := disable);
+
+IF enable AND NOT wmicNetworkAdapterEnable.Busy THEN
+	enable := FALSE;
+END_IF
+
+IF disable AND NOT wmicNetworkAdapterDisable.Busy THEN
+	disable := FALSE;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
